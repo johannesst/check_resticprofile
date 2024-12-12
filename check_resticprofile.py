@@ -24,27 +24,26 @@ def check_file(file,command,profile,warning,critical):
     timefmt=parser.parse(status_data['time']).replace(tzinfo=None)
     last=datetime.now()-timefmt
     last=int(last.total_seconds())
-    perf_data=f"'Last {command}'={last}s;{warning};{critical};;\r\n"
-    perf_data= perf_data + f"Duration of {command}: {duration} sec | 'Duration': {duration}s;;;\r\n"
-    status_lines=f'Last {command} {int(last/60/60)} hours ago + {perf_data}'
+    perf_data=f"'Last {command}'={last}s;{warning};{critical};; 'Duration'={duration}s;;;"
+    status_lines=f'Last {command} {int(last/60/60)} hours ago took {duration} sec | {perf_data}'
     if not status_data['success']:
-        print(f'CRITICAL: Last {command} failed | {status_lines}\r\n')
+        print(f'CRITICAL: Last {command} failed | {perf_data} ')
         for i in status_data['stderr'].splitlines():
             print(i)
         sys.exit(2)
 
     else:
         if last > critical:
-            print(f"CRITICAL: {status_lines}")
+            print(f'CRITICAL: {status_lines} ')
             sys.exit(2)
         elif last > warning:
-            print(f"WARNING: {status_lines}")
+            print(f'WARNING: {status_lines}')
             sys.exit(1)
         elif last < warning:
-            print(f"OK: {status_lines}")
+            print(f'OK: {status_lines}')
             sys.exit(0)
         else:
-            print("UNKNOWN")
+            print('UNKNOWN')
             sys.exit(3)
 
 
@@ -53,9 +52,9 @@ def main():
     ''' main method nothing to see'''
     argp = argparse.ArgumentParser(description=__doc__)
     argp.add_argument('-w', '--warning', metavar='HOURS', default='24',
-                      help='return warning if last successful COMMAND job is older than HOURS')
+                      help='return warning if last successfull COMMAND job is older than HOURS')
     argp.add_argument('-c', '--critical', metavar='HOURS', default='48',
-                      help='return critical if last successful COMMAND job is older than HOURS')
+                      help='return critical if last successfull COMMAND job is older than HOURS')
     argp.add_argument('-C', '--command', default = 'backup',
                       help='COMMAND to check for, Default: backup')
     argp.add_argument('-p', '--profile', default = 'default',
