@@ -11,13 +11,13 @@ os plugin for checking resticprofile status files
 options:
   -h, --help            show this help message and exit
   -w HOURS, --warning HOURS
-                        return warning if last successfull ACTION is older
+                        return warning if last successful COMMAND is older
                         than HOURS
   -c HOURS, --critical HOURS
-                        return critical if last successfull ACTION is older
+                        return critical if last successful COMMAND is older
                         than HOURS
-  -a ACTION, --action ACTION
-                        ACTION to check for, Default: backup
+  -C COMMAND --COMMAND COMMAND
+                        COMMAND to check for, Default: backup
   -p PROFILE, --profile PROFILE
                         resticprofile to use, Default: default
   -f FILE, --file FILE  Path to resticprofile status file
@@ -27,7 +27,7 @@ options:
 
 The directory testdata contains two testfiles produced with resticprofile. You can use them to test the plugin:
 ````
-./check_resticprofile.py -f testdata/status-error.json   --profile local -a check
+./check_resticprofile.py -f testdata/status-error.json   --profile local -c check
 CRITICAL: Last check failed | Last check 9 hours ago + 'Last check'=35956s;86400;172800;;
 Duration of check: 1 sec | 'Duration': 1s;;;
 
@@ -39,7 +39,7 @@ Is there a repository at the following location?
 
 sftp://server.local/resticrepo
 
- ./check_resticprofile.py -f testdata/status-success.json   --profile local -a check
+ ./check_resticprofile.py -f testdata/status-success.json   --profile local -c check
  WARNING: Last check 24 hours ago + 'Last check'=89579s;86400;172800;;
  Duration of check: 70 sec | 'Duration': 70s;;;
 ````

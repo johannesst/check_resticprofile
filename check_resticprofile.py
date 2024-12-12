@@ -9,7 +9,7 @@ import traceback
 from datetime import datetime
 from dateutil import parser
 
-def check_file(file,action,profile,warning,critical):
+def check_file(file,command,profile,warning,critical):
     ''' Check status file '''
     warning=int(warning) * 60 * 60
     critical=int(critical) * 60 * 60
@@ -17,18 +17,18 @@ def check_file(file,action,profile,warning,critical):
     with  open(file, 'r',encoding='utf-8') as status_file:
         status=json.load(status_file)
     status_file.close()
-    status_data=status['profiles'][profile][action]
+    status_data=status['profiles'][profile][command]
     #error=status['error']
     #stderr=status_data['stderr']
     duration=status_data['duration']
     timefmt=parser.parse(status_data['time']).replace(tzinfo=None)
     last=datetime.now()-timefmt
     last=int(last.total_seconds())
-    perf_data=f"'Last {action}'={last}s;{warning};{critical};;\r\n"
-    perf_data= perf_data + f"Duration of {action}: {duration} sec | 'Duration': {duration}s;;;\r\n"
-    status_lines=f'Last {action} {int(last/60/60)} hours ago + {perf_data}'
+    perf_data=f"'Last {command}'={last}s;{warning};{critical};;\r\n"
+    perf_data= perf_data + f"Duration of {command}: {duration} sec | 'Duration': {duration}s;;;\r\n"
+    status_lines=f'Last {command} {int(last/60/60)} hours ago + {perf_data}'
     if not status_data['success']:
-        print(f'CRITICAL: Last {action} failed | {status_lines}\r\n')
+        print(f'CRITICAL: Last {command} failed | {status_lines}\r\n')
         for i in status_data['stderr'].splitlines():
             print(i)
         sys.exit(2)
@@ -53,18 +53,18 @@ def main():
     ''' main method nothing to see'''
     argp = argparse.ArgumentParser(description=__doc__)
     argp.add_argument('-w', '--warning', metavar='HOURS', default='24',
-                      help='return warning if last successfull ACTION is older than HOURS')
+                      help='return warning if last successful COMMAND job is older than HOURS')
     argp.add_argument('-c', '--critical', metavar='HOURS', default='48',
-                      help='return critical if last successfull ACTION is older than HOURS')
-    argp.add_argument('-a', '--action', default = 'backup',
-                      help='ACTION to check for, Default: backup')
+                      help='return critical if last successful COMMAND job is older than HOURS')
+    argp.add_argument('-C', '--command', default = 'backup',
+                      help='COMMAND to check for, Default: backup')
     argp.add_argument('-p', '--profile', default = 'default',
-                      help='resticprofile to use, Default: default')
+                      help='profile to use, Default: default')
     argp.add_argument('-f', '--file',required=True,
                       help='Path to resticprofile status file')
     args = argp.parse_args()
     try:
-        check_file(args.file,args.action,args.profile,args.warning,args.critical)
+        check_file(args.file,args.command,args.profile,args.warning,args.critical)
     except Exception as err:
         print(f"UNKNOWN: Unexpected {err=}, {type(err)=})")
         print("Trace: "  + traceback.format_exc())
